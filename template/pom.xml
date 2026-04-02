@@ -17,4 +17,12 @@
         <module>storage-supplier</module>
         <module>snapshot-display-line</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>me.hsgamer</groupId>
+            <artifactId>topper-agent-timed</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

@@ -2,16 +2,19 @@ package me.hsgamer.topper.template.topplayernumber;
 
 import me.hsgamer.topper.agent.core.Agent;
 import me.hsgamer.topper.agent.core.DataEntryAgent;
+import me.hsgamer.topper.agent.timed.TimePeriod;
 import me.hsgamer.topper.storage.core.DataStorage;
 import me.hsgamer.topper.template.topplayernumber.holder.NumberTopHolder;
 import me.hsgamer.topper.template.topplayernumber.manager.*;
 import me.hsgamer.topper.value.core.ValueProvider;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public abstract class TopPlayerNumberTemplate {
@@ -33,6 +36,8 @@ public abstract class TopPlayerNumberTemplate {
         this.reloadManager = new ReloadManager();
     }
 
+    // ── Required abstracts ────────────────────────────────────────────────────
+
     public abstract Function<String, DataStorage<UUID, Double>> getStorageSupplier();
 
     public abstract Optional<ValueProvider<UUID, Double>> createValueProvider(Map<String, Object> settings);
@@ -40,6 +45,24 @@ public abstract class TopPlayerNumberTemplate {
     public abstract Agent createTask(Runnable runnable, NumberTopHolder.TaskType taskType, Map<String, Object> settings);
 
     public abstract void logWarning(String message, @Nullable Throwable throwable);
+
+    // ── Timed storage supplier ────────────────────────────────────────────────
+
+    /**
+     * Returns a supplier that creates a {@link DataStorage} for the given holder name
+     * and {@link TimePeriod}.  The default implementation reuses the same storage
+     * factory as alltime but appends "_{period}" to the name
+     * (e.g. "money_weekly", "money_monthly").
+     *
+     * <p>Override this if you want to store timed data in a different location
+     * (e.g. a separate database schema).</p>
+     */
+    public BiFunction<String, TimePeriod, DataStorage<UUID, Double>> getTimedStorageSupplier() {
+        Function<String, DataStorage<UUID, Double>> base = getStorageSupplier();
+        return (name, period) -> base.apply(name + "_" + period.name());
+    }
+
+    // ── Optional overrides ────────────────────────────────────────────────────
 
     public String getName(UUID uuid) {
         return this.nameProviderManager.getName(uuid);
@@ -50,8 +73,9 @@ public abstract class TopPlayerNumberTemplate {
     }
 
     public void modifyAgents(NumberTopHolder holder, List<Agent> agents, List<DataEntryAgent<UUID, Double>> entryAgents) {
-
     }
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     public void enable() {
         topManager.enable();
@@ -73,6 +97,8 @@ public abstract class TopPlayerNumberTemplate {
         topManager.enable();
         reloadManager.call(ReloadManager.ReloadEntry::afterReload);
     }
+
+    // ── Getters ───────────────────────────────────────────────────────────────
 
     public Settings getSettings() {
         return settings;
@@ -102,6 +128,8 @@ public abstract class TopPlayerNumberTemplate {
         return reloadManager;
     }
 
+    // ── Settings interface ────────────────────────────────────────────────────
+
     public interface Settings {
         Map<String, NumberTopHolder.Settings> holders();
 
@@ -110,5 +138,13 @@ public abstract class TopPlayerNumberTemplate {
         int taskUpdateEntryPerTick();
 
         int taskUpdateMaxSkips();
+
+        /**
+         * Timezone used for weekly/monthly reset boundaries.
+         * Defaults to the JVM system timezone.
+         */
+        default ZoneId zoneId() {
+            return ZoneId.systemDefault();
+        }
     }
 }

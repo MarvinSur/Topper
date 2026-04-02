@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>topper-template-top-player-number</artifactId>
-    <name>Topper Template - Top Player Number</name>
+    <n>Topper Template - Top Player Number</n>
     <description>A Topper template to handle player-number leaderboards</description>
 
     <dependencies>
@@ -37,6 +37,11 @@
         <dependency>
             <groupId>me.hsgamer</groupId>
             <artifactId>topper-agent-storage</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>me.hsgamer</groupId>
+            <artifactId>topper-agent-timed</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

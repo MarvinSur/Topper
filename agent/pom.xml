@@ -16,9 +16,10 @@
         <module>storage</module>
         <module>snapshot</module>
         <module>update</module>
+        <module>timed</module>
     </modules>
 
-    <name>Topper Agent</name>
+    <n>Topper Agent</n>
 
     <dependencies>
         <dependency>

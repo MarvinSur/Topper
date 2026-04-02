@@ -33,7 +33,7 @@ public enum TimePeriod {
         }
 
         @Override
-        public String name() {
+        public String getIdentifier() {
             return "weekly";
         }
     },
@@ -57,7 +57,7 @@ public enum TimePeriod {
         }
 
         @Override
-        public String name() {
+        public String getIdentifier() {
             return "monthly";
         }
     };
@@ -75,7 +75,7 @@ public enum TimePeriod {
     /**
      * Returns the lowercase identifier used in placeholders and storage suffixes.
      */
-    public abstract String name();
+    public abstract String getIdentifier();
 
     /**
      * Milliseconds until the next reset from now.
